@@ -25,19 +25,19 @@ Let's first process an example corpus (one sentence per line) into an event file
 >>> path_to_corpus = "my_corpus.txt"
 >>> path_to_event_file = "my_corpus.events"
 >>> preprocessor = Preprocessor()
->>> proprocessor.process_file("my_corpus.txt", "my_corpus.events")
+>>> preprocessor.process_file("my_corpus.txt", "my_corpus.events")
 ```
 
-The events should now be saved in my_corpus.events and can be used with kerasndl's main class, the **Learner**, which handles the interfaces to the NDL network and the training events file, such that training and querying can go smoothly. Let's train the learner on the first 1000 events we have created and extract the weights between some cues and outcomes:
+The events should now be saved in my_corpus.events and can be used with kerasndl's main class, the **Learner**, which handles the interfaces to the NDL network and the training events file, such that training and querying can go smoothly. Let's train the learner on the first 10 events we have created and extract the weights between some cues and outcomes:
 
 ```python
 >>> from kerasndl.learner import Learner
 
 >>> learner = Learner(path_to_event_file)
->>> learner.learn(1000)
+>>> learner.learn(10)
 
->>> cues = ["these","are","example","cues"]
->>> outcomes = ["And","some","test","outcomes"]
+>>> cues = ["so","om","me"] # default cue size is letter uni- and bigrams
+>>> outcomes = ["and","some","test","outcomes"]
 
 >>> weights = learner.get_weights(cues = cues, outcomes = outcomes, named = True)
 ```
@@ -47,6 +47,7 @@ Setting named to True will result in the weights being return as a pandas data f
 ```python
 >>> from kerasndl.visualize import plot_graph
 
+>>> learner.learn() # not providing the number of events learns all remaining
 >>> weights = learner.get_weights(cues = cues, outcomes = outcomes)
 >>> plot_graph(weights, output_file = "my_plot.pdf")
 >>> np.save(weights, "my_weights.npy")
