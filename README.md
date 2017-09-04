@@ -83,8 +83,11 @@ It can be avoided by importing plot_graph before doing any other imports.
 The highly-optimized reference implementation of NDL is that from [pyndl](https://pypi.python.org/pypi/pyndl/0.3.0), so kerasndl's perfomance should be plotted against that of pyndl. When trained on 20000 three-word phrases randomly drawn from the English SUBTLEX corpus to predict words from words (3800 cues and outcomes in total), results were identical, but the latencies differed dramatically:
 
 **kerasndl (CPU):           822s**
+
 **kerasndl (GPU):           240s**
+
 **pyndl (Pure Python)       139s**
+
 **pyndl (C, memory mapping) 2s**
 
 When using the GPU, kerasndl is comparable in speed to that of the pyndl version, while it is much slower than the reference implementation when run on the CPU. But all of these are outperformed by pyndl's implementation in C, which gains its dramatic performance increase from mapping cues and outcomes in a preprocessing step to memory addresses, eliminating all look-up costs.
