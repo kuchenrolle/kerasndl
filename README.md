@@ -68,8 +68,8 @@ Finally, plot the weights (weights must now be a named pandas data frame) as a b
 >>> from kerasndl.visualize import plot_graph
 >>> # import pandas as pd
 >>> # weights = pd.read_feather("my_weights.feather")
->>> # weights.index = weights["index"]
->>> # weights = weights.drop("index", 1)
+>>> # weights.index = weights["index"] # set index
+>>> # weights = weights.drop("index", 1) # remove column "index"
 
 >>> plot_graph(weights, output_file = "my_plot.pdf")
 ```
