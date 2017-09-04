@@ -110,8 +110,7 @@ class Learner:
                         outcomes to get weights to, defaults to all        
         """
         df = self.get_weights(cues, outcomes, named = True)
-        # can't save df with row names, save to column and remove
-        df["cue_names"] = df.index
+        # can't save df with row names, save to column "index" and remove
         df.reset_index().to_feather(output_file)
 
 

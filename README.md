@@ -25,7 +25,7 @@ Let's first process an example corpus (one sentence per line) into an event file
 >>> path_to_corpus = "my_corpus.txt"
 >>> path_to_event_file = "my_corpus.events"
 >>> preprocessor = Preprocessor()
->>> preprocessor.process_file("my_corpus.txt", "my_corpus.events")
+>>> preprocessor.process_file(path_to_corpus, path_to_event_file)
 ```
 
 The events should now be saved in my_corpus.events and can be used with kerasndl's main class, the **Learner**, which handles the interfaces to the NDL network and the training events file, such that training and querying can go smoothly. Let's train the learner on the first 10 events we have created and extract the weights between some cues and outcomes:
@@ -40,29 +40,52 @@ The events should now be saved in my_corpus.events and can be used with kerasndl
 >>> outcomes = ["and","some","test","outcomes"]
 
 >>> weights = learner.get_weights(cues = cues, outcomes = outcomes, named = True)
+>>> weights
+    and  outcomes      some      test
+me  0.0       0.0  0.001844  0.001234
+om  0.0       0.0  0.001844  0.001234
+so  0.0       0.0  0.001844  0.001234
 ```
 
-Setting named to True will result in the weights being return as a pandas data frame with named rows (cues) and columns (outcomes), otherwise they will be returned as a plain two-dimensional numpy array. Finally, let's continue learning until all events have been processed and plot how the weights that we have extracted before look now and save the plot and the weights.
+Setting named to True will result in the weights being return as a pandas data frame with named rows (cues) and columns (outcomes), otherwise they will be returned as a plain two-dimensional numpy array. Let's continue learning until all events have been processed, save the weights and get the status of the learner.
+
+```python
+>>> learner.learn() # not providing the number of events learns all remaining
+>>> weights = learner.get_weights(cues = cues, outcomes = outcomes)
+>>> np.save("my_weights.npy", weights)
+>>> print(learner.info)
+```
+
+Alternatively, save the weights as a feather data frame, which allows to port them to R. Feather does not understand row names, though, so these are stored as the last column called "index" and must accordingly be added back if working with pandas.
+
+```python
+>>> learner.save_as_feather("my_weights.feather", cues, outcomes)
+```
+
+Finally, plot the weights (weights must now be a named pandas data frame) as a bipartite graph with connections color coding the weights, display and save it.
 
 ```python
 >>> from kerasndl.visualize import plot_graph
+>>> # import pandas as pd
+>>> # weights = pd.read_feather("my_weights.feather")
+>>> # weights.index = weights["index"]
+>>> # weights = weights.drop("index", 1)
 
->>> learner.learn() # not providing the number of events learns all remaining
->>> weights = learner.get_weights(cues = cues, outcomes = outcomes)
 >>> plot_graph(weights, output_file = "my_plot.pdf")
->>> np.save(weights, "my_weights.npy")
 ```
 
-
+This can sometimes lead to an ImportError, which appears to stem from some internal issues between tensorflow, spacy and matplotlib - if this happens, save the weights with feather and open in another session.
+(Uncomment line two and three in that case.)
+It can be avoided by importing plot_graph before doing any other imports.
 
 ### Performance
 
 The highly-optimized reference implementation of NDL is that from [pyndl](https://pypi.python.org/pypi/pyndl/0.3.0), so kerasndl's perfomance should be plotted against that of pyndl. When trained on 20000 three-word phrases randomly drawn from the English SUBTLEX corpus to predict words from words (3800 cues and outcomes in total), results were identical, but the latencies differed dramatically:
 
-# kerasndl (CPU):           822s
-# kerasndl (GPU):           240s
-# pyndl (Pure Python)       139s
-# pyndl (C, memory mapping) 2s
+### kerasndl (CPU):           822s
+### kerasndl (GPU):           240s
+### pyndl (Pure Python)       139s
+### pyndl (C, memory mapping) 2s
 
 When using the GPU, kerasndl is comparable in speed to that of the pyndl version, while it is much slower than the reference implementation when run on the CPU. But all of these are outperformed by pyndl's implementation in C, which gains its dramatic performance increase from mapping cues and outcomes in a preprocessing step to memory addresses, eliminating all look-up costs.
 
@@ -70,7 +93,7 @@ Even though kerasndl was developed to allow it to be easily modifiable using the
 
 It is worth pointing out, though, that this is a proof-of-concept and it is anticipated that switching to a lower-level interface will eliminate a large portion of the overhead and allow kerasndl to break even with the performance of the pure python implementation. More importantly, relative to CPUs, GPUs have seen larger improvements in performance, which will further reduce the performance gap.
 
-But the biggest reason for the difference in speed is the nature of the modelled problem. Events in NDL are very sparse, such that only few of a large number of cues are learnt to only few of a large number of outcomes. The reference implementation updates each connection individually, but keras will calculate updates for all weights at once, which will produce a huge amount of overhead, as most of those updates will not be used. The way to overcome this is by implementing using CUDA instructions direcly, at which point using GPUs will likely become very efficient.
+But the biggest reason for the difference in speed is the nature of the modelled problem. Events for NDL are typically very sparse, such that only few of a large number of cues are learnt to only few of a large number of outcomes on each event. The reference implementation updates each connection individually, but keras will calculate updates for all weights at once, which will produce a huge amount of overhead, as most of those updates will not be used. The way to overcome this is by implementing using CUDA instructions direcly, at which point using GPUs will likely become very efficient.
 
 ### Prerequisites
 
