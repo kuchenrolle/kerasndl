@@ -1,0 +1,4 @@
+This is an example corpus with a some test sentences.
+It has quite a few things going on for it!
+For example, it can be split into cues and outcomes, among other things.
+It's not a haiku though.
