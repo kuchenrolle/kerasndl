@@ -9,7 +9,7 @@ First you will need to clone the github directory, at which point you can start 
 
 ```shell
 user@host:~ git clone https://github.com/kuchenrolle/kerasndl.git
-user@host:~ cd kerasndl
+user@host:~ cd kerasndl/src
 user@host:~ python
 ```
 
