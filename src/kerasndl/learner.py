@@ -32,6 +32,8 @@ class Learner:
         events = self.filehandler.event_generator()
         self.network = NDL(config, init_weights, events)
 
+        self._num_events_learnt = 0
+
 
     def count_cues_outcomes(self):
         """Counts cues and outcomes of event file.
@@ -54,6 +56,7 @@ class Learner:
             num_events_to_learn = self.num_events_left
 
         self.network.learn(num_events_to_learn)
+        self._num_events_learnt += num_events_to_learn
 
 
     def get_weights(self, cues = None, outcomes = None, named = False):
@@ -130,7 +133,7 @@ class Learner:
 
     @property
     def num_events_learnt(self):
-        return self.filehandler.processed
+        return self._num_events_learnt
 
     @property
     def num_events(self):
@@ -156,10 +159,5 @@ class Learner:
     def info(self):
         """Information on the status the learner.
         """
-        info_string = f"""Event File: {self.filehandler.event_file}
-            Number of Events: {self.num_events} ({self.num_events_learnt} learnt)
-            Number of Cues: {self.num_cues}
-            Number of Outcomes: {self.num_outcomes}
-            Cues and Outcomes are lowercased: {self.filehandler.lowercase}
-            Learning Rate: {self.network.learning_rate}"""
+        info_string = f"""Event File: {self.filehandler.event_file} \nNumber of Events: {self.num_events} ({self.num_events_learnt} learnt) \nNumber of Cues: {self.num_cues} \nNumber of Outcomes: {self.num_outcomes} \nCues and Outcomes are lowercased: {self.filehandler.lowercase} \nLearning Rate: {self.network.learning_rate}"""
         return info_string

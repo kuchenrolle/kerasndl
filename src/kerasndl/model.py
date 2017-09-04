@@ -61,8 +61,9 @@ class NDL:
         for i in range(num_events):
             cues, outcomes = next(self.batches)
             self.network.train_on_batch(cues, outcomes)
-            sys.stderr.write(f"\rLearnt {i} of {num_events}.")
+            sys.stderr.write(f"\rLearnt {i+1} of {num_events}.")
             sys.stderr.flush()
+        sys.stderr.write("\n")
 
 
     def get_weights(self, cues, outcomes):
