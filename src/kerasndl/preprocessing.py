@@ -3,7 +3,7 @@ import os
 import gzip
 import string
 
-from config import DefaultPreprocessingConfig
+from kerasndl.config import DefaultPreprocessingConfig
 
 
 class Preprocessor:

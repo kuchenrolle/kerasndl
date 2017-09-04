@@ -5,9 +5,9 @@ import warnings
 import numpy as np
 import pandas as pd
 
-from model import NDL
-from config import DefaultNetworkConfig
-from filehandler import EventFileHandler
+from kerasndl.model import NDL
+from kerasndl.config import DefaultNetworkConfig
+from kerasndl.filehandler import EventFileHandler
 
 
 class Learner:

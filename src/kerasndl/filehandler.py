@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 import sys
 
-from utils import Numberer
+from kerasndl.utils import Numberer
 
 
 class EventFileHandler:
